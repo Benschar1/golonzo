@@ -73,9 +73,32 @@ func TestFilterMaybes(t *testing.T) {
 
 	test := utils.AsrtCallEq(t, "FilterMaybes")
 
-	l1, ex1 := []Maybe[int]{Some[int]{1}, Some[int]{-4}, None[int]{}, Some[int]{5}, None[int]{}, Some[int]{-10}}, []int{1, -4, 5, -10}
-	l2, ex2 := []Maybe[int]{None[int]{}, None[int]{}, None[int]{}, None[int]{}}, []int{}
-	l3, ex3 := []Maybe[int]{Some[int]{1}, Some[int]{4}, Some[int]{7}, Some[int]{-12}, Some[int]{-993}}, []int{1, 4, 7, -12, -993}
+	l1, ex1 := []Maybe[int]{
+		Some[int]{1},
+		Some[int]{-4},
+		None[int]{},
+		Some[int]{5},
+		None[int]{},
+		Some[int]{-10},
+	},
+		[]int{1, -4, 5, -10}
+
+	l2, ex2 := []Maybe[int]{
+		None[int]{},
+		None[int]{},
+		None[int]{},
+		None[int]{},
+	},
+		[]int{}
+
+	l3, ex3 := []Maybe[int]{
+		Some[int]{1},
+		Some[int]{4},
+		Some[int]{7},
+		Some[int]{-12},
+		Some[int]{-993},
+	},
+		[]int{1, 4, 7, -12, -993}
 
 	test(ex1, FilterMaybes(l1), l1)
 	test(ex2, FilterMaybes(l2), l2)

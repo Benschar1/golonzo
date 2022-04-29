@@ -5,10 +5,15 @@ import (
 	"strings"
 )
 
-//"Expected Maybe value %v to be of type Some or None, but its type is %T", m, v
+// func BadSumTypeConstructor(val any, typeName string, typeConstructors ...string) string {
+// 	return fmt.Sprintf("expected %v to be of type %s :: %s, but its type is %T", val, typeName, strings.Join(typeConstructors, " | "), val)
+// }
 
-func BadSumTypeConstructor(val any, typeName string, typeConstructors ...string) string {
-	return fmt.Sprintf("expected %v to be of type %s :: %s, but its type is %T", val, typeName, strings.Join(typeConstructors, " | "), val)
+func BadTypeError(val any, exTypeStr string) string {
+	return fmt.Sprintf(
+		"expected %#v to be of type %s, but its type is %T",
+		val, exTypeStr, val,
+	)
 }
 
 func CallStr(funcName string, args []any) string {

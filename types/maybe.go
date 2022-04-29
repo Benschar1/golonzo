@@ -1,7 +1,9 @@
 package types
 
 import (
+	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/Benschar1/golonzo/utils"
 )
@@ -11,31 +13,35 @@ type Maybe[A any] interface {
 }
 
 type Some[A any] struct {
-	val A
+	Val A
 }
 
 type None[A any] struct{}
 
-func (_ Some[A]) isMaybe() {}
-func (_ None[A]) isMaybe() {}
+func (Some[A]) isMaybe() {}
+func (None[A]) isMaybe() {}
 
 // IsSome :: Maybe a -> bool
 func IsSome[A any](m Maybe[A]) bool {
 	switch m.(type) {
 	case Some[A]:
 		return true
-	default:
+	case None[A]:
 		return false
+	default:
+		return maybeSwitchDefault[bool](m)
 	}
 }
 
-// IsNone :: Maybe a -> bool
+// IsSome :: Maybe a -> bool
 func IsNone[A any](m Maybe[A]) bool {
 	switch m.(type) {
 	case None[A]:
 		return true
-	default:
+	case Some[A]:
 		return false
+	default:
+		return maybeSwitchDefault[bool](m)
 	}
 }
 
@@ -46,10 +52,9 @@ func FromMaybe[A any](df A) func(Maybe[A]) A {
 		case None[A]:
 			return df
 		case Some[A]:
-			return v.val
+			return v.Val
 		default:
-			log.Panic(utils.BadSumTypeConstructor(v, "Maybe", "Some", "None"))
-			return Some[A]{}.val
+			return maybeSwitchDefault[A](m)
 		}
 	}
 }
@@ -59,12 +64,11 @@ func MapMaybe[A, B any](f func(A) B) func(Maybe[A]) Maybe[B] {
 	return func(m Maybe[A]) Maybe[B] {
 		switch v := m.(type) {
 		case Some[A]:
-			return Some[B]{f(v.val)}
+			return Some[B]{f(v.Val)}
 		case None[A]:
 			return None[B]{}
 		default:
-			log.Panic(utils.BadSumTypeConstructor(v, "Maybe", "Some", "None"))
-			return None[B]{}
+			return maybeSwitchDefault[Maybe[B]](m)
 		}
 	}
 }
@@ -74,12 +78,11 @@ func BindMaybe[A, B any](m Maybe[A]) func(func(A) Maybe[B]) Maybe[B] {
 	return func(f func(A) Maybe[B]) Maybe[B] {
 		switch v := m.(type) {
 		case Some[A]:
-			return f(v.val)
+			return f(v.Val)
 		case None[A]:
 			return None[B]{}
 		default:
-			log.Panic(utils.BadSumTypeConstructor(v, "Maybe", "Some", "None"))
-			return None[A]{}
+			return maybeSwitchDefault[Maybe[B]](m)
 		}
 	}
 }
@@ -90,11 +93,31 @@ func FilterMaybes[A any](ms []Maybe[A]) []A {
 	for _, m := range ms {
 		switch v := m.(type) {
 		case Some[A]:
-			vals = append(vals, v.val)
+			vals = append(vals, v.Val)
 		case None[A]:
 		default:
-			log.Panic(utils.BadSumTypeConstructor(v, "Maybe", "Some", "None"))
+			return maybeSwitchDefault[[]A](m)
 		}
 	}
 	return vals
+}
+
+// error utilities
+
+func MaybeTypeSig[A any]() string {
+	return fmt.Sprintf(
+		"Maybe[%s] :: Some{ Val %s } | None",
+		reflect.TypeOf((*A)(nil)).Elem(),
+		reflect.TypeOf((*A)(nil)).Elem(),
+	)
+}
+
+func MaybeTypeError[A any](m Maybe[A]) string {
+	return utils.BadTypeError(m, MaybeTypeSig[A]())
+}
+
+func maybeSwitchDefault[Ret, A any](m Maybe[A]) Ret {
+	log.Panicf(MaybeTypeError(m))
+	var x Ret
+	return x
 }
