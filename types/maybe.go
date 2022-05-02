@@ -87,7 +87,7 @@ func BindMaybe[A, B any](m Maybe[A]) func(func(A) Maybe[B]) Maybe[B] {
 	}
 }
 
-// FilterMaybes :: [Maybe a] -> [a]
+// FilterMaybes :: []Maybe a -> []a
 func FilterMaybes[A any](ms []Maybe[A]) []A {
 	vals := make([]A, 0, len(ms))
 	for _, m := range ms {

@@ -167,7 +167,7 @@ func EitherFlip[A, B any](e Either[A, B]) Either[B, A] {
 	}
 }
 
-// Lefts :: [Either a b] -> [a]
+// Lefts :: []Either a b -> []a
 func Lefts[A, B any](es []Either[A, B]) []A {
 	lefts := make([]A, 0, len(es))
 	for _, v := range es {
@@ -182,7 +182,7 @@ func Lefts[A, B any](es []Either[A, B]) []A {
 	return lefts
 }
 
-// Rights :: [Either a b] -> [b]
+// Rights :: []Either a b -> []b
 func Rights[A, B any](es []Either[A, B]) []B {
 	rights := make([]B, 0, len(es))
 	for _, v := range es {
@@ -197,7 +197,7 @@ func Rights[A, B any](es []Either[A, B]) []B {
 	return rights
 }
 
-// PartitionEither :: [Either a b] -> ([a], [b])
+// PartitionEither :: []Either a b -> ([]a, []b)
 func PartitionEither[A, B any](es []Either[A, B]) Tuple2[[]A, []B] {
 	lefts := make([]A, 0, len(es))
 	rights := make([]B, 0, len(es))
