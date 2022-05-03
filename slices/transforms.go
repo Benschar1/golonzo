@@ -41,3 +41,17 @@ func Intersperse[A any](el A) func([]A) []A {
 		return sliceOut
 	}
 }
+
+// Intercalate :: []a -> [][]a -> []a
+func Intercalate[A any](xs []A) func([][]A) []A {
+	return func(xss [][]A) []A {
+		return Concat(Intersperse(xs)(xss))
+	}
+}
+
+// ConcatMap :: (a -> []b) -> []a -> []b
+func ConcatMap[A, B any](f func(A) []B) func([]A) []B {
+	return func(sliceIn []A) []B {
+		return Concat(Map(f)(sliceIn))
+	}
+}

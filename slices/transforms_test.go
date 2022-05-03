@@ -50,3 +50,49 @@ func TestIntersperse(t *testing.T) {
 	test(ex2, Intersperse(el2)(arr2), el2, arr2)
 	test(ex3, Intersperse(el3)(arr3), el3, arr3)
 }
+
+func TestIntercalate(t *testing.T) {
+	test := utils.AsrtCallEq(t, "Intercalate")
+
+	xs1, xss1, ex1 :=
+		[]int{2, 5},
+		[][]int{{1, 2}, {3, 4}, {5, 6}},
+		[]int{1, 2, 2, 5, 3, 4, 2, 5, 5, 6}
+
+	xs2, xss2, ex2 :=
+		[]rune("xhj"),
+		[][]rune{[]rune("g")},
+		[]rune("g")
+
+	xs3, xss3, ex3 :=
+		[]int{4},
+		[][]int{},
+		[]int{}
+
+	test(ex1, Intercalate(xs1)(xss1), xs1, xss1)
+	test(ex2, Intercalate(xs2)(xss2), xs2, xss2)
+	test(ex3, Intercalate(xs3)(xss3), xs3, xss3)
+}
+
+func TestConcatMap(t *testing.T) {
+	test := utils.AsrtCallEq(t, "ConcatMap")
+
+	f1, s1, ex1 :=
+		Replicate[int](3),
+		[]int{1, 3, 2, 10},
+		[]int{1, 1, 1, 3, 3, 3, 2, 2, 2, 10, 10, 10}
+
+	f2, s2, ex2 :=
+		func(s string) []int { return []int{} },
+		[]string{"dj", "hjh", "uiy"},
+		[]int{}
+
+	f3, s3, ex3 :=
+		func(i int) []int { return Replicate[int](i)(i) },
+		[]int{-3, 0, -2, 2, -9, 4, 0, 1},
+		[]int{2, 2, 4, 4, 4, 4, 1}
+
+	test(ex1, ConcatMap(f1)(s1), f1, s1)
+	test(ex2, ConcatMap(f2)(s2), f2, s2)
+	test(ex3, ConcatMap(f3)(s3), f3, s3)
+}

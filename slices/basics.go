@@ -62,3 +62,8 @@ func Concat[A any](slicesIn [][]A) []A {
 
 	return slicesOut
 }
+
+// Empty :: []a -> bool
+func Empty[A any](list []A) bool {
+	return len(list) == 0
+}

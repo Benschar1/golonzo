@@ -103,3 +103,17 @@ func TestConcat(t *testing.T) {
 	test(ex2, Concat(arr2), arr2)
 	test(ex3, Concat(arr3), arr3)
 }
+
+func TestEmpty(t *testing.T) {
+	test := utils.AsrtCallEq(t, "Empty")
+
+	arr1, ex1 := []int{1, 2}, false
+	arr2, ex2 := []string{}, true
+	arr3, ex3 := make([]int, 0, 10), true
+	arr4, ex4 := make([]int, 10), false
+
+	test(ex1, Empty(arr1), arr1)
+	test(ex2, Empty(arr2), arr2)
+	test(ex3, Empty(arr3), arr3)
+	test(ex4, Empty(arr4), arr4)
+}
