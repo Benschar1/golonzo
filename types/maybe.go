@@ -33,7 +33,7 @@ func IsSome[A any](m Maybe[A]) bool {
 	}
 }
 
-// IsSome :: Maybe a -> bool
+// IsNone :: Maybe a -> bool
 func IsNone[A any](m Maybe[A]) bool {
 	switch m.(type) {
 	case None[A]:
