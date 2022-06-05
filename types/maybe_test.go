@@ -1,58 +1,82 @@
 package types
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/Benschar1/golonzo/utils"
+	u "github.com/Benschar1/golonzo/utils"
 )
 
 func TestIsSome(t *testing.T) {
-	test := utils.AsrtCallEq(t, "IsSome")
+	cases := map[string]u.FuncTc{
+		"Some{x} is some": u.MakeFtc1(
+			IsSome[int],
+			true,
+			Some[int]{4},
+		),
+		"None{} is not some": u.MakeFtc1(
+			IsSome[int],
+			false,
+			None[int]{},
+		),
+	}
 
-	in1, ex1 := Some[int]{4}, true
-	in2, ex2 := None[int]{}, false
-
-	test(ex1, IsSome[int](in1), in1)
-	test(ex2, IsSome[int](in2), in2)
+	u.FuncUnitTests{Cases: cases}.Execute(t)
 }
 
 func TestIsNone(t *testing.T) {
-	test := utils.AsrtCallEq(t, "IsNone")
+	cases := map[string]u.FuncTc{
+		"Some{x} is not none": u.MakeFtc1(
+			IsNone[int],
+			false,
+			Some[int]{4},
+		),
+		"None{} is none": u.MakeFtc1(
+			IsNone[int],
+			true,
+			None[int]{},
+		),
+	}
 
-	in1, ex1 := Some[int]{4}, false
-	in2, ex2 := None[int]{}, true
-
-	test(ex1, IsNone[int](in1), in1)
-	test(ex2, IsNone[int](in2), in2)
+	u.FuncUnitTests{Cases: cases}.Execute(t)
 }
 
 func TestFromMaybe(t *testing.T) {
+	cases := map[string]u.FuncTc{
+		"FromMaybe on Some{x} is x": u.MakeFtc1(
+			FromMaybe[int],
+			3,
+			4, Some[int]{3},
+		),
+		"FromMaybe on None{} is default": u.MakeFtc1(
+			FromMaybe[int],
+			4,
+			4, None[int]{},
+		),
+	}
 
-	test := utils.AsrtCallEq(t, "FromMaybe")
-
-	df1, m1, ex1 := 4, Some[int]{3}, 3
-	df2, m2, ex2 := 4, None[int]{}, 4
-
-	test(ex1, FromMaybe(df1)(m1), df1, m1)
-	test(ex2, FromMaybe(df2)(m2), df2, m2)
+	u.FuncUnitTests{Cases: cases}.Execute(t)
 }
 
 func TestMapMaybe(t *testing.T) {
+	plus2 := func(i int) int { return i + 2 }
 
-	test := utils.AsrtCallEq(t, "MapMaybe")
+	cases := map[string]u.FuncTc{
+		"MapMaybe on Some{x} is mapped x": u.MakeFtc1(
+			MapMaybe[int, int],
+			Some[int]{5},
+			plus2, Some[int]{3},
+		),
+		"MapMaybe on None{} is none": u.MakeFtc1(
+			MapMaybe[int, int],
+			None[int]{},
+			plus2, None[int]{},
+		),
+	}
 
-	f1, in1, ex1 := func(n int) int { return n + 2 }, Some[int]{3}, Some[int]{5}
-	f2, in2, ex2 := func(a int) string { return fmt.Sprint(a) }, None[int]{}, None[string]{}
-
-	test(ex1, MapMaybe(f1)(in1), f1, in1)
-	test(ex2, MapMaybe(f2)(in2), f2, in2)
+	u.FuncUnitTests{Cases: cases}.Execute(t)
 }
 
 func TestBindMaybe(t *testing.T) {
-
-	test := utils.AsrtCallEq(t, "BindMaybe")
-
 	maybePos := func(n int) Maybe[int] {
 		if n > 0 {
 			return Some[int]{n}
@@ -60,47 +84,63 @@ func TestBindMaybe(t *testing.T) {
 		return None[int]{}
 	}
 
-	in1, ex1 := Some[int]{3}, Some[int]{3}
-	in2, ex2 := Some[int]{-1}, None[int]{}
-	in3, ex3 := None[int]{}, None[int]{}
+	cases := map[string]u.FuncTc{
+		"BindMaybe 1": u.MakeFtc1(
+			BindMaybe[int, int],
+			Some[int]{3},
+			Some[int]{3}, maybePos,
+		),
+		"BindMaybe 2": u.MakeFtc1(
+			BindMaybe[int, int],
+			None[int]{},
+			Some[int]{-1}, maybePos,
+		),
+		"BindMaybe 3": u.MakeFtc1(
+			BindMaybe[int, int],
+			None[int]{},
+			None[int]{}, maybePos,
+		),
+	}
 
-	test(ex1, BindMaybe[int, int](in1)(maybePos), in1, maybePos)
-	test(ex2, BindMaybe[int, int](in2)(maybePos), in2, maybePos)
-	test(ex3, BindMaybe[int, int](in3)(maybePos), in3, maybePos)
+	u.FuncUnitTests{Cases: cases}.Execute(t)
 }
 
 func TestFilterMaybes(t *testing.T) {
+	cases := map[string]u.FuncTc{
+		"FilterMaybes filters all nones": u.MakeFtc1(
+			FilterMaybes[int],
+			[]int{1, -4, 5, -10},
+			[]Maybe[int]{
+				Some[int]{1},
+				Some[int]{-4},
+				None[int]{},
+				Some[int]{5},
+				None[int]{},
+				Some[int]{-10},
+			},
+		),
+		"FilterMaybes on all nones returns empty list": u.MakeFtc1(
+			FilterMaybes[int],
+			[]int{},
+			[]Maybe[int]{
+				None[int]{},
+				None[int]{},
+				None[int]{},
+				None[int]{},
+			},
+		),
+		"FilterMaybes on all somes returns whole list": u.MakeFtc1(
+			FilterMaybes[int],
+			[]int{1, 4, 7, -12, -993},
+			[]Maybe[int]{
+				Some[int]{1},
+				Some[int]{4},
+				Some[int]{7},
+				Some[int]{-12},
+				Some[int]{-993},
+			},
+		),
+	}
 
-	test := utils.AsrtCallEq(t, "FilterMaybes")
-
-	l1, ex1 := []Maybe[int]{
-		Some[int]{1},
-		Some[int]{-4},
-		None[int]{},
-		Some[int]{5},
-		None[int]{},
-		Some[int]{-10},
-	},
-		[]int{1, -4, 5, -10}
-
-	l2, ex2 := []Maybe[int]{
-		None[int]{},
-		None[int]{},
-		None[int]{},
-		None[int]{},
-	},
-		[]int{}
-
-	l3, ex3 := []Maybe[int]{
-		Some[int]{1},
-		Some[int]{4},
-		Some[int]{7},
-		Some[int]{-12},
-		Some[int]{-993},
-	},
-		[]int{1, 4, 7, -12, -993}
-
-	test(ex1, FilterMaybes(l1), l1)
-	test(ex2, FilterMaybes(l2), l2)
-	test(ex3, FilterMaybes(l3), l3)
+	u.FuncUnitTests{Cases: cases}.Execute(t)
 }
