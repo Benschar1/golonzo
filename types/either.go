@@ -103,7 +103,7 @@ func EitherMapR[B1, B2, A any](f func(B1) B2) func(e Either[A, B1]) Either[A, B2
 	}
 }
 
-// EitherMapLR :: (a1 -> a2) -> (b1 -> b2) -> Either a1 b1 -> Either a1 b2
+// EitherMapLR :: (a1 -> a2) -> (b1 -> b2) -> Either a1 b1 -> Either a2 b2
 func EitherMapLR[A1, A2, B1, B2 any](fl func(A1) A2) func(func(B1) B2) func(Either[A1, B1]) Either[A2, B2] {
 	return func(fr func(B1) B2) func(Either[A1, B1]) Either[A2, B2] {
 		return func(e Either[A1, B1]) Either[A2, B2] {
